@@ -304,6 +304,83 @@ private:
     Fact            _chargeStateFact;
 };
 
+class VehicleStgStatusFactGroup : public FactGroup
+{
+    Q_OBJECT
+
+public:
+    VehicleStgStatusFactGroup(QObject* parent = nullptr);
+
+    Q_PROPERTY(Fact* voltage_battery        READ voltage_battery        CONSTANT)
+    Q_PROPERTY(Fact* voltage_generator      READ voltage_generator      CONSTANT)
+    Q_PROPERTY(Fact* current_battery        READ current_battery        CONSTANT)
+    Q_PROPERTY(Fact* current_generator      READ current_generator      CONSTANT)
+    Q_PROPERTY(Fact* power_load             READ power_load             CONSTANT)
+    Q_PROPERTY(Fact* current_charge         READ current_charge         CONSTANT)
+    Q_PROPERTY(Fact* temperarture_bridge    READ temperarture_bridge    CONSTANT)
+    Q_PROPERTY(Fact* voltage_drop           READ voltage_drop           CONSTANT)
+    Q_PROPERTY(Fact* rpm_cranckshaft        READ rpm_cranckshaft        CONSTANT)
+    Q_PROPERTY(Fact* halls_errors           READ halls_errors           CONSTANT)
+    Q_PROPERTY(Fact* uptime                 READ uptime                 CONSTANT)
+    Q_PROPERTY(Fact* current_starter        READ current_starter        CONSTANT)
+    Q_PROPERTY(Fact* motor_state            READ motor_state            CONSTANT)
+    Q_PROPERTY(Fact* stg_errors_bitmask     READ stg_errors_bitmask     CONSTANT)
+    Q_PROPERTY(Fact* engine_temperature     READ engine_temperature     CONSTANT)
+
+    Fact* voltage_battery                   (void) { return &_voltageBatteryFact; }
+    Fact* voltage_generator                 (void) { return &_voltageGeneratorFact; }
+    Fact* current_battery                   (void) { return &_currentBatteryFact; }
+    Fact* current_generator                 (void) { return &_currentGeneratorFact; }
+    Fact* power_load                        (void) { return &_powerLoadFact; }
+    Fact* current_charge                    (void) { return &_currentChargeFact; }
+    Fact* temperarture_bridge               (void) { return &_temperatureBridgeFact; }
+    Fact* voltage_drop                      (void) { return &_voltageDropFact; }
+    Fact* rpm_cranckshaft                   (void) { return &_rpmCranckshaftFact; }
+    Fact* halls_errors                      (void) { return &_hallsErrorsFact; }
+    Fact* uptime                            (void) { return &_uptimeFact; }
+    Fact* current_starter                   (void) { return &_currentStarterFact; }
+    Fact* motor_state                       (void) { return &_motorStateFact; }
+    Fact* stg_errors_bitmask                (void) { return &_stgErrorBitmaskFact; }
+    Fact* engine_temperature                (void) { return &_engineTemperatureFact; }
+
+    static const char* _voltageBatteryFactName;
+    static const char* _voltageGeneratortFactName;
+    static const char* _currentBatteryFactName;
+    static const char* _currentGeneratorFactName;
+    static const char* _powerLoadFactName;
+    static const char* _currentChargeFactName;
+    static const char* _temperatureBridgeFactName;
+    static const char* _voltageDropFactName;
+    static const char* _rpmCranckshaftFactName;
+    static const char* _hallsErrorsFactName;
+    static const char* _uptimeFactName;
+    static const char* _currentStarterFactName;
+    static const char* _motorStateFactName;
+    static const char* _stgErrorBitmaskFactName;
+    static const char* _engineTemperatureFactName;
+
+    static const char* _settingsGroup;
+
+    static const int    _unavailable;
+
+private:
+    Fact _voltageBatteryFact;
+    Fact _voltageGeneratorFact;
+    Fact _currentBatteryFact;
+    Fact _currentGeneratorFact;
+    Fact _powerLoadFact;
+    Fact _currentChargeFact;
+    Fact _temperatureBridgeFact;
+    Fact _voltageDropFact;
+    Fact _rpmCranckshaftFact;
+    Fact _hallsErrorsFact;
+    Fact _uptimeFact;
+    Fact _currentStarterFact;
+    Fact _motorStateFact;
+    Fact _stgErrorBitmaskFact;
+    Fact _engineTemperatureFact;
+};
+
 class VehicleTemperatureFactGroup : public FactGroup
 {
     Q_OBJECT
@@ -955,6 +1032,7 @@ public:
     Fact* hobbs             (void) { return &_hobbsFact; }
 
     FactGroup* gpsFactGroup             (void) { return &_gpsFactGroup; }
+    FactGroup* stgStatusGroup           (void) { return &_stgStatusFactGroup; }
     FactGroup* battery1FactGroup        (void) { return &_battery1FactGroup; }
     FactGroup* battery2FactGroup        (void) { return &_battery2FactGroup; }
     FactGroup* windFactGroup            (void) { return &_windFactGroup; }
@@ -1257,6 +1335,7 @@ private:
     void _handleEstimatorStatus(mavlink_message_t& message);
     void _handleStatusText(mavlink_message_t& message, bool longVersion);
     void _handleOrbitExecutionStatus(const mavlink_message_t& message);
+    void _handleStgStatus(const mavlink_message_t& message);
     // ArduPilot dialect messages
 #if !defined(NO_ARDUPILOT_DIALECT)
     void _handleCameraFeedback(const mavlink_message_t& message);
@@ -1486,6 +1565,7 @@ private:
     Fact _hobbsFact;
 
     VehicleGPSFactGroup             _gpsFactGroup;
+    VehicleStgStatusFactGroup       _stgStatusFactGroup;
     VehicleBatteryFactGroup         _battery1FactGroup;
     VehicleBatteryFactGroup         _battery2FactGroup;
     VehicleWindFactGroup            _windFactGroup;
@@ -1515,6 +1595,7 @@ private:
     static const char* _hobbsFactName;
 
     static const char* _gpsFactGroupName;
+    static const char* _stgStatusFactGroupName;
     static const char* _battery1FactGroupName;
     static const char* _battery2FactGroupName;
     static const char* _windFactGroupName;

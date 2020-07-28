@@ -1,0 +1,91 @@
+[
+{
+    "name":             "voltageBattery",
+    "shortDescription": "Voltage Battery",
+    "type":             "int32",
+    "units":            "v"
+},
+{
+    "name":             "voltageGenerator",
+    "shortDescription": "Voltage Generator",
+    "type":             "int32",
+    "units":            "v"
+},
+{
+    "name":             "currentBattery",
+    "shortDescription": "Current Battery",
+    "type":             "int32",
+    "units":            "A"
+},
+{
+    "name":             "currentGenerator",
+    "shortDescription": "Current Generator",
+    "type":             "int32",
+    "units":            "A"
+},
+{
+    "name":             "powerLoad",
+    "shortDescription": "Power Load",
+    "type":             "int32",
+    "units":            "w"
+},
+{
+    "name":             "currentCharge",
+    "shortDescription": "Current Charge",
+    "type":             "int32",
+    "units":            "A"
+},
+{
+    "name":             "temperartureBridge",
+    "shortDescription": "Temperarture Bridge",
+    "type":             "int32",
+    "units":            "C"
+},
+{
+    "name":             "voltagDrop",
+    "shortDescription": "Voltag Drop",
+    "type":             "int32",
+     "units":            "v"
+},
+{
+    "name":             "rpmCranckshaft",
+    "shortDescription": "Rpm Cranckshaft",
+    "type":             "int32",
+    "units":            "Hz"
+},
+{
+    "name":             "hallsErrors",
+    "shortDescription": "Halls Errors",
+    "type":             "int32"
+},
+{
+    "name":             "uptime",
+    "shortDescription": "Uptime",
+    "type":             "int32",
+    "units":            "s"
+},
+{
+    "name":             "currentStarter",
+    "shortDescription": "Current Starter",
+    "type":             "int32",
+    "units":            "A"
+},
+{
+    "name":             "motorState",
+    "shortDescription": "Motor State",
+    "enumStrings":      "Motor Waiting,Motor Starting,Motor Started,Motor Error",
+    "enumValues":       "0,1,2,3",
+    "type":             "int32"
+},
+{
+    "name":             "stgErrorsBitmask",
+    "shortDescription": "Stg Errors Bitmask",
+    "type":             "int32"
+},
+{
+    "name":             "engineTemperature",
+    "shortDescription": "Engine Temperature",
+    "type":             "int32",
+    "units":            "s"
+}
+]

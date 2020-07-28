@@ -77,6 +77,7 @@ const char* Vehicle::_distanceToGCSFactName =       "distanceToGCS";
 const char* Vehicle::_hobbsFactName =               "hobbs";
 
 const char* Vehicle::_gpsFactGroupName =                "gps";
+const char* Vehicle::_stgStatusFactGroupName =          "stg status";
 const char* Vehicle::_battery1FactGroupName =           "battery";
 const char* Vehicle::_battery2FactGroupName =           "battery2";
 const char* Vehicle::_windFactGroupName =               "wind";
@@ -203,6 +204,7 @@ Vehicle::Vehicle(LinkInterface*             link,
     , _distanceToGCSFact    (0, _distanceToGCSFactName,     FactMetaData::valueTypeDouble)
     , _hobbsFact            (0, _hobbsFactName,             FactMetaData::valueTypeString)
     , _gpsFactGroup(this)
+    , _stgStatusFactGroup(this)
     , _battery1FactGroup(this)
     , _battery2FactGroup(this)
     , _windFactGroup(this)
@@ -404,6 +406,7 @@ Vehicle::Vehicle(MAV_AUTOPILOT              firmwareType,
     , _distanceToGCSFact    (0, _distanceToGCSFactName,     FactMetaData::valueTypeDouble)
     , _hobbsFact            (0, _hobbsFactName,             FactMetaData::valueTypeString)
     , _gpsFactGroup(this)
+    , _stgStatusFactGroup(this)
     , _battery1FactGroup(this)
     , _battery2FactGroup(this)
     , _windFactGroup(this)
@@ -481,6 +484,7 @@ void Vehicle::_commonInit(void)
     _addFact(&_hobbsFact,               _hobbsFactName);
 
     _addFactGroup(&_gpsFactGroup,               _gpsFactGroupName);
+    _addFactGroup(&_stgStatusFactGroup,         _stgStatusFactGroupName);
     _addFactGroup(&_battery1FactGroup,          _battery1FactGroupName);
     _addFactGroup(&_battery2FactGroup,          _battery2FactGroupName);
     _addFactGroup(&_windFactGroup,              _windFactGroupName);
@@ -677,6 +681,9 @@ void Vehicle::_mavlinkMessageReceived(LinkInterface* link, mavlink_message_t mes
     }
 
     switch (message.msgid) {
+    case MAVLINK_MSG_ID_STG_STATUS:
+        _handleStgStatus(message);
+        break;
     case MAVLINK_MSG_ID_HOME_POSITION:
         _handleHomePosition(message);
         break;
@@ -1564,6 +1571,28 @@ void Vehicle::_handleSysStatus(mavlink_message_t& message)
     }
 }
 
+void Vehicle::_handleStgStatus(const mavlink_message_t &message){
+    mavlink_stg_status_t stgStatus;
+    mavlink_msg_stg_status_decode(&message, &stgStatus);
+
+    _stgStatusFactGroup.voltage_battery()->setRawValue(stgStatus.voltage_battery);
+    _stgStatusFactGroup.voltage_generator()->setRawValue(stgStatus.voltage_generator);
+    _stgStatusFactGroup.current_battery()->setRawValue(stgStatus.current_battery);
+    _stgStatusFactGroup.current_generator()->setRawValue(stgStatus.current_generator);
+    _stgStatusFactGroup.power_load()->setRawValue(stgStatus.power_load);
+    _stgStatusFactGroup.current_charge()->setRawValue(stgStatus.current_charge);
+    _stgStatusFactGroup.temperarture_bridge()->setRawValue(stgStatus.temperarture_bridge);
+    _stgStatusFactGroup.voltage_drop()->setRawValue(stgStatus.voltage_drop);
+    _stgStatusFactGroup.rpm_cranckshaft()->setRawValue(stgStatus.rpm_cranckshaft);
+    _stgStatusFactGroup.halls_errors()->setRawValue(stgStatus.halls_errors);
+    _stgStatusFactGroup.uptime()->setRawValue(stgStatus.uptime);
+    _stgStatusFactGroup.current_starter()->setRawValue(stgStatus.current_starter);
+    _stgStatusFactGroup.motor_state()->setRawValue(stgStatus.motor_state);
+    _stgStatusFactGroup.stg_errors_bitmask()->setRawValue(stgStatus.stg_errors_bitmask);
+}
+
+float NTC_temp[191] = {3.270647047, 3.268661408, 3.266557847, 3.264330493, 3.261973262, 3.259479846, 3.256843718, 3.254058126, 3.251116092, 3.248010413, 3.244733658, 3.24127817, 3.237636065, 3.233799239, 3.229759364, 3.225507894, 3.221036072, 3.216334932, 3.211395306, 3.206207834, 3.200762969, 3.195050992, 3.189062018, 3.182786011, 3.176212802, 3.169332099, 3.162133505, 3.154606541, 3.146740664, 3.138525285, 3.129949802, 3.121003617, 3.111676167, 3.101956952, 3.091835567, 3.081301733, 3.070345329, 3.058956433, 3.047125353, 3.034842666, 3.022099264, 3.008886385, 2.995195661, 2.981019161, 2.966349431, 2.951179537, 2.935503114, 2.919314405, 2.902608306, 2.885380412, 2.867627054, 2.849345343, 2.830533212, 2.811189449, 2.791313738, 2.77090669, 2.749969871, 2.728505837, 2.706518152, 2.684011413, 2.660991263, 2.637464409, 2.613438626, 2.588922762, 2.563926737, 2.538461538, 2.512539209, 2.486172828, 2.459376496, 2.432165302, 2.404555294, 2.376563447, 2.348207613, 2.319506482, 2.290479529, 2.261146959, 2.231529651, 2.201649092, 2.171527317, 2.14118684, 2.110650581, 2.079941799, 2.049084019, 2.018100956, 1.987016443, 1.955854358, 1.924638548, 1.893392761, 1.862140575, 1.830905327, 1.79971005, 1.768577408, 1.737529635, 1.706588483, 1.675775161, 1.645110292, 1.614613865, 1.584305191, 1.554202873, 1.524324763, 1.494687945, 1.4653087, 1.436202493, 1.407383955, 1.378866871, 1.350664173, 1.322787935, 1.295249373, 1.268058851, 1.241225883, 1.214759144, 1.188666485, 1.162954943, 1.137630763, 1.112699412, 1.088165607, 1.06403333, 1.04030586, 1.016985792, 0.9940750665, 0.9715749975, 0.9494862984, 0.9278091115, 0.9065430362, 0.8856871577, 0.8652400757, 0.845199933, 0.8255644433, 0.8063309197, 0.7874963012, 0.7690571801, 0.7510098277, 0.7333502198, 0.7160740612, 0.6991768097, 0.6826536987, 0.6664997595, 0.6507098423, 0.6352786363, 0.6202006893, 0.6054704258, 0.5910821644, 0.5770301345, 0.5633084916, 0.5499113325, 0.5368327083, 0.5240666383, 0.5116071214, 0.4994481477, 0.4875837092, 0.4760078092, 0.4647144716, 0.4536977493, 0.4429517316, 0.4324705517, 0.4222483926, 0.4122794933, 0.4025581543, 0.3930787418, 0.3838356925, 0.3748235171, 0.3660368041, 0.3574702224, 0.3491185239, 0.3409765462, 0.3330392137, 0.3253015401, 0.317758629, 0.3104056751, 0.303237965, 0.2962508779, 0.2894398856, 0.2828005528, 0.2763285369, 0.2700195879, 0.263869548, 0.2578743509, 0.2520300213, 0.2463326742, 0.2407785136, 0.2353638322, 0.2300850098, 0.2249385123, 0.2199208907, 0.2150287796, 0.2102588961, 0.2056080384, 0.2010730842, 0.1966509897, 0.1923387879, 0.1881335873};
+
 void Vehicle::_handleBatteryStatus(mavlink_message_t& message)
 {
     mavlink_battery_status_t bat_status;
@@ -1571,11 +1600,17 @@ void Vehicle::_handleBatteryStatus(mavlink_message_t& message)
 
     VehicleBatteryFactGroup& batteryFactGroup = bat_status.id == 0 ? _battery1FactGroup : _battery2FactGroup;
 
-    if (bat_status.temperature == INT16_MAX) {
-        batteryFactGroup.temperature()->setRawValue(VehicleBatteryFactGroup::_temperatureUnavailable);
-    } else {
-        batteryFactGroup.temperature()->setRawValue((double)bat_status.temperature / 100.0);
+    float tempVolt = (float)bat_status.temperature / 1000.0;
+    int temp = 190;
+    for (; temp >= 0; temp--) {
+        if (tempVolt < NTC_temp[temp]){
+            temp -= 40;
+            break;
+        }
     }
+
+     batteryFactGroup.temperature()->setRawValue(temp);
+    _stgStatusFactGroup.engine_temperature()->setRawValue(temp);
     if (bat_status.current_consumed == -1) {
         batteryFactGroup.mahConsumed()->setRawValue(VehicleBatteryFactGroup::_mahConsumedUnavailable);
     } else {
@@ -3901,6 +3936,82 @@ VehicleBatteryFactGroup::VehicleBatteryFactGroup(QObject* parent)
     _cellCountFact.setRawValue          (_cellCountUnavailable);
     _instantPowerFact.setRawValue       (_instantPowerUnavailable);
 }
+
+//-----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
+
+const char* VehicleStgStatusFactGroup::_voltageBatteryFactName =                     "voltageBattery";
+const char* VehicleStgStatusFactGroup::_voltageGeneratortFactName =                  "voltageGenerator";
+const char* VehicleStgStatusFactGroup::_currentBatteryFactName =                     "currentBattery";
+const char* VehicleStgStatusFactGroup::_currentGeneratorFactName =                   "currentGenerator";
+const char* VehicleStgStatusFactGroup::_powerLoadFactName =                          "powerLoad";
+const char* VehicleStgStatusFactGroup::_currentChargeFactName =                      "currentCharge";
+const char* VehicleStgStatusFactGroup::_temperatureBridgeFactName =                  "temperartureBridge";
+const char* VehicleStgStatusFactGroup::_voltageDropFactName =                        "voltagDrop";
+const char* VehicleStgStatusFactGroup::_rpmCranckshaftFactName =                     "rpmCranckshaft";
+const char* VehicleStgStatusFactGroup::_hallsErrorsFactName =                        "hallsErrors";
+const char* VehicleStgStatusFactGroup::_uptimeFactName =                             "uptime";
+const char* VehicleStgStatusFactGroup::_currentStarterFactName =                     "currentStarter";
+const char* VehicleStgStatusFactGroup::_motorStateFactName =                         "motorState";
+const char* VehicleStgStatusFactGroup::_stgErrorBitmaskFactName =                    "stgErrorsBitmask";
+const char* VehicleStgStatusFactGroup::_engineTemperatureFactName =                  "engineTemperature";
+
+const char* VehicleStgStatusFactGroup::_settingsGroup =                              "Vehicle.battery";
+
+const int VehicleStgStatusFactGroup::_unavailable =           -1;
+
+VehicleStgStatusFactGroup::VehicleStgStatusFactGroup(QObject* parent)
+    : FactGroup(1000, ":/json/Vehicle/StgStatusFact.json", parent)
+    , _voltageBatteryFact                  (0, _voltageBatteryFactName,                 FactMetaData::valueTypeInt32)
+    , _voltageGeneratorFact                (0, _voltageGeneratortFactName,              FactMetaData::valueTypeInt32)
+    , _currentBatteryFact                  (0, _currentBatteryFactName,                 FactMetaData::valueTypeInt32)
+    , _currentGeneratorFact                (0, _currentGeneratorFactName,               FactMetaData::valueTypeInt32)
+    , _powerLoadFact                       (0, _powerLoadFactName,                      FactMetaData::valueTypeInt32)
+    , _currentChargeFact                   (0, _currentChargeFactName,                  FactMetaData::valueTypeInt32)
+    , _temperatureBridgeFact               (0, _temperatureBridgeFactName,              FactMetaData::valueTypeInt32)
+    , _voltageDropFact                     (0, _voltageDropFactName,                    FactMetaData::valueTypeInt32)
+    , _rpmCranckshaftFact                  (0, _rpmCranckshaftFactName,                 FactMetaData::valueTypeInt32)
+    , _hallsErrorsFact                     (0, _hallsErrorsFactName,                    FactMetaData::valueTypeInt32)
+    , _uptimeFact                          (0, _uptimeFactName,                         FactMetaData::valueTypeInt32)
+    , _currentStarterFact                  (0, _currentStarterFactName,                 FactMetaData::valueTypeInt32)
+    , _motorStateFact                      (0, _motorStateFactName,                     FactMetaData::valueTypeInt32)
+    , _stgErrorBitmaskFact                 (0, _stgErrorBitmaskFactName,                FactMetaData::valueTypeInt32)
+    , _engineTemperatureFact               (0, _engineTemperatureFactName,              FactMetaData::valueTypeInt32)
+{
+    _addFact(&_voltageBatteryFact,                  _voltageBatteryFactName);
+    _addFact(&_voltageGeneratorFact,                _voltageGeneratortFactName);
+    _addFact(&_currentBatteryFact,                  _currentBatteryFactName);
+    _addFact(&_currentGeneratorFact,                _currentGeneratorFactName);
+    _addFact(&_powerLoadFact,                       _powerLoadFactName);
+    _addFact(&_currentChargeFact,                   _currentChargeFactName);
+    _addFact(&_temperatureBridgeFact,               _temperatureBridgeFactName);
+    _addFact(&_voltageDropFact,                     _voltageDropFactName);
+    _addFact(&_rpmCranckshaftFact,                  _rpmCranckshaftFactName);
+    _addFact(&_hallsErrorsFact,                     _hallsErrorsFactName);
+    _addFact(&_uptimeFact,                          _uptimeFactName);
+    _addFact(&_currentStarterFact,                  _currentStarterFactName);
+    _addFact(&_motorStateFact,                      _motorStateFactName);
+    _addFact(&_stgErrorBitmaskFact,                 _stgErrorBitmaskFactName);
+    _addFact(&_engineTemperatureFact,               _engineTemperatureFactName);
+
+    // Start out as not available
+    _voltageBatteryFact.setRawValue                 (_unavailable);
+    _voltageGeneratorFact.setRawValue               (_unavailable);
+    _currentBatteryFact.setRawValue                 (_unavailable);
+    _currentGeneratorFact.setRawValue               (_unavailable);
+    _powerLoadFact.setRawValue                      (_unavailable);
+    _currentChargeFact.setRawValue                  (_unavailable);
+    _temperatureBridgeFact.setRawValue              (_unavailable);
+    _voltageDropFact.setRawValue                    (_unavailable);
+    _rpmCranckshaftFact.setRawValue                 (_unavailable);
+    _hallsErrorsFact.setRawValue                    (_unavailable);
+    _uptimeFact.setRawValue                         (_unavailable);
+    _currentStarterFact.setRawValue                 (_unavailable);
+    _motorStateFact.setRawValue                     (_unavailable);
+    _stgErrorBitmaskFact.setRawValue                (_unavailable);
+    _engineTemperatureFact.setRawValue              (_unavailable);
+}
+
 
 const char* VehicleWindFactGroup::_directionFactName =      "direction";
 const char* VehicleWindFactGroup::_speedFactName =          "speed";
