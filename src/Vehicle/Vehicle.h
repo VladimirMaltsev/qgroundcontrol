@@ -1336,6 +1336,7 @@ private:
     void _handleStatusText(mavlink_message_t& message, bool longVersion);
     void _handleOrbitExecutionStatus(const mavlink_message_t& message);
     void _handleStgStatus(const mavlink_message_t& message);
+    void _handleAdcReport(const mavlink_message_t& message);
     // ArduPilot dialect messages
 #if !defined(NO_ARDUPILOT_DIALECT)
     void _handleCameraFeedback(const mavlink_message_t& message);
